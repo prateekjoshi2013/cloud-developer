@@ -1,8 +1,7 @@
 import { Router, Request, Response } from 'express';
 
-import { User } from '../models/User';
-
-import * as bcrypt from 'bcrypt';
+import { User } from '../models/User'
+const bcrypt= require( 'bcrypt-nodejs');
 import * as jwt from 'jsonwebtoken';
 import { NextFunction } from 'connect';
 import {config} from '../../../../config/config';
@@ -13,19 +12,26 @@ const router: Router = Router();
 async function generatePassword(plainTextPassword: string): Promise<string> {
     //@TODO Use Bcrypt to Generated Salted Hashed Passwords
     const saltRounds=10;
-    const salt= await bcrypt.genSalt(saltRounds);
-    return await bcrypt.hash(plainTextPassword,salt);
+    const salt = bcrypt.genSaltSync(10);
+    var password = bcrypt.hashSync(plainTextPassword, salt);
+    return new Promise( (resolutionFunc,rejectionFunc) => {
+        resolutionFunc(password);
+    });
 }
 
 async function comparePasswords(plainTextPassword: string, hash: string): Promise<boolean> {
     //@TODO Use Bcrypt to Compare your password to your Salted Hashed Password
-    return await bcrypt.compare(plainTextPassword,hash);
+    return new Promise( (resolutionFunc,rejectionFunc) => {
+        console.log(plainTextPassword,hash);
+        resolutionFunc(bcrypt.compareSync(plainTextPassword,hash));
+    });
 }
 
 function generateJWT(user: User): string {
     //@TODO Use jwt to create a new JWT Payload containing
-    return jwt.sign(user,config.jwt.secret);
+    return jwt.sign(user.toJSON(),config.jwt.secret);
 }
+
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
     if (!req.headers || !req.headers.authorization){
