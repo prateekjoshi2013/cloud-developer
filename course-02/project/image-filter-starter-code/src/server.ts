@@ -21,7 +21,7 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
     }
     filterImageFromURL(image_url)
     .then(filteredUrl=>{
-      res.sendFile(filteredUrl); 
+      res.status(200).sendFile(filteredUrl); 
       res.on('finish', function() {
         try {
           deleteLocalFiles([filteredUrl]);
@@ -55,7 +55,8 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   // Root Endpoint
   // Displays a simple message to the user
   app.get( "/", async ( req: Request, res: Response ) => {
-    res.send("try GET /filteredimage?image_url={{}}")
+    res.status(200).send("try GET /filteredimage?image_url={{}}")
+
   } );
   
 
